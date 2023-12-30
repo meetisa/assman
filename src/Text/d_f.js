@@ -1,0 +1,1 @@
+export const d_f = ['Trinità', 'Eva', 'Madonna', 'Maddalena', 'Venere', 'Persefone', 'Benedetta', 'Demetra', 'Madonnina', 'Minerva', 'Artemide', 'Iside', 'Amaterasu', 'Izanami', 'Afrodite', 'Freya', 'Maria', 'Era', 'Atena', 'Giunone', 'Addolorata', 'Madonnina di Pompei'];
