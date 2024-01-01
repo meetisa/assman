@@ -3,6 +3,8 @@ import * as menu from './menu.js';
 import * as modbest from './modbest.js';
 // import { open } from 'fs.promises';
 
+const DEV_MODE = true;
+
 const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
 
 export default {
@@ -33,6 +35,11 @@ export default {
 
 		//The id of the chat is always useful
 		const chatId = update.message.chat.id;
+		if(DEV_MODE && chatId != 512131924) {
+			await bot.sendMessage(API_KEY, chatId, "Lavori in corso, sorry");
+			return;
+		}
+
 
 		//The content of the message sent too
 		const input = String(update.message.text);
@@ -112,6 +119,11 @@ export default {
 	async callback_responses(API_KEY, update) {
 		//The chat id
 		const chatId = update.callback_query.from.id;
+		if(DEV_MODE && chatId != 512131924) {
+			await bot.sendMessage(API_KEY, chatId, "Lavori in corso, sorry");
+			return;
+		}
+
 		//The reference of the previous interaction
 		let callback_data = update.callback_query.data;
 		//The id of the message to edit
