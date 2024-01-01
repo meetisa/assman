@@ -1,3 +1,5 @@
+const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
+
 export const mese_assemblea = {
     "inline_keyboard": [
       [
@@ -33,10 +35,9 @@ export const mese_assemblea = {
         "callback_data": "undo nuova assemblea"
       }]
     ]
-  };
+};
 
 export async function getMaterialiAssemblea(inmenu=true) {
-	const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
 	let data = {
 		method: "POST",
 		body: JSON.stringify({
@@ -80,6 +81,18 @@ export async function getMaterialiAssemblea(inmenu=true) {
 	};
 }
 
+export async function getGruppi(inmenu=true) {
+	let data = {
+		method: "POST",
+		body: JSON.stringify({
+			func: "getGruppi"
+		});
+	};
+	const resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+
+	return resp.gruppi;
+}
+
 /**
  *
  * @param {Number} chatId - the id of the chat
@@ -87,7 +100,6 @@ export async function getMaterialiAssemblea(inmenu=true) {
  * @returns {Promise<Object>} - the inline keyboard
  */
 export async function getNotifichekb(chatId, inmenu=true) {
-	const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
   let data = {
     method: "POST",
     body: JSON.stringify({
@@ -187,14 +199,22 @@ export const buoni_pasto = {
         "text": "Assemblee",
         "callback_data": "assemblee"
       }],
+			[{
+				"text": "Impostazioni",
+				"callback_data": "impostazioni"
+			}]
+			/*
       [{
         "text": "Tornei",
         "callback_data": "tornei"
       }],
+			*/
+			/*
       [{
         "text": "Buoni pasto",
         "callback_data": "buoni pasto"
       }]
+      */
     ]
   };
 
@@ -217,6 +237,7 @@ export const keyboards = {
     "notifiche assemblea": [
       "Attiva o disattiva le notifiche dei form dell'assemblea corrente.\nPremi un pulsante per cambiarne l'impostazione"
     ],
+		/*
     "tornei": [
       "Ancora in fase di sviluppo. Seguiranno aggiornamenti",
       torneikb
@@ -225,4 +246,5 @@ export const keyboards = {
       "Ancora in fase di sviluppo. Seguiranno aggiornamenti",
       buoni_pasto
     ]
+    */
   };

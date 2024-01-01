@@ -4,6 +4,7 @@ import * as modbest from './modbest.js';
 // import { open } from 'fs.promises';
 
 const DEV_MODE = true;
+const DEV_CHAT_ID = 512131924;
 
 const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
 
@@ -24,8 +25,8 @@ export default {
 					await this.callback_responses(env.API_KEY, update);
 			}
 			catch(e) {
-				await bot.sendMessage(env.API_KEY, 512131924, e);
-				await bot.sendMessage(env.API_KEY, 512131924, JSON.stringify(update));
+				await bot.sendMessage(env.API_KEY, DEV_CHAT_ID, e);
+				await bot.sendMessage(env.API_KEY, DEV_CHAT_ID, JSON.stringify(update));
 			}
 		}
 		return new Response('OK');
@@ -35,7 +36,7 @@ export default {
 
 		//The id of the chat is always useful
 		const chatId = update.message.chat.id;
-		if(DEV_MODE && chatId != 512131924) {
+		if(DEV_MODE && chatId != DEV_CHAT_ID) {
 			await bot.sendMessage(API_KEY, chatId, "Lavori in corso, sorry");
 			return;
 		}
@@ -61,6 +62,10 @@ export default {
 				var reader = new FileReader();
 				let dt = reader.readAsText('test.txt');
 				await bot.sendMessage(API_KEY, chatId, dt);
+			break;
+
+			case "gruppi":
+				await bot.sendMessage(API_KEY, chatId, menu.getGruppi());
 			break;
 
 			case "/start":
@@ -119,7 +124,7 @@ export default {
 	async callback_responses(API_KEY, update) {
 		//The chat id
 		const chatId = update.callback_query.from.id;
-		if(DEV_MODE && chatId != 512131924) {
+		if(DEV_MODE && chatId != DEV_CHAT_ID) {
 			await bot.sendMessage(API_KEY, chatId, "Lavori in corso, sorry");
 			return;
 		}
