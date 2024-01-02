@@ -65,7 +65,7 @@ export default {
 			break;
 
 			case "gruppi":
-				await bot.sendMessage(API_KEY, chatId, menu.getGruppi());
+				await bot.sendMessage(API_KEY, chatId, await menu.getGruppi());
 			break;
 
 			case "/start":
@@ -88,12 +88,16 @@ export default {
 			break;
 
 			case "/menu":
+				const kb = bot.inlineKeyboard(menu.tree, 0);
+				await bot.sendKeyboard(API_KEY, chatId, ...kb);
+				/*
 				await bot.sendKeyboard(
 					API_KEY,
 					chatId,
 					menu.keyboards["menu tree"][0],
 					menu.keyboards["menu tree"][1]
 				);
+				*/
 			break;
 
 			case "/userscount":
@@ -134,6 +138,10 @@ export default {
 		//The id of the message to edit
 		const messageId = update.callback_query.message.message_id;
 
+		const kb = bot.inlineKeyboard(menu.tree, callback_data);
+		await bot.sendKeyboard(API_KEY, chatId, ...kb);
+
+		/*
 		if(callback_data.includes("mese")) {
 			var mese = callback_data.replace("mese ", "");
 			callback_data = "mese";
@@ -246,5 +254,6 @@ export default {
 				);
 			break;
 		}
+		*/
 	}
 };

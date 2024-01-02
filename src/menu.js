@@ -1,5 +1,94 @@
 const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
 
+export const tree = {
+	header: "Questo è il menu principlale",
+	children: [
+		{
+			text: "Assemblee",
+			header: "Sezione assemblee",
+			callback_data: "assemblee",
+			row: 0,
+			children: [
+				{
+					text: "Crea una nuova assemblea",
+					header: "Quando la vogliamo fare sta assemblea?",
+					callback_data: "nuova assemblea",
+					row: 0,
+					children: [
+						{
+							text: "Dicembre",
+							callback_data: "mese Dicembre",
+							row: 0
+						},
+						{
+							text: "Gennaio",
+							callback_data: "mese Gennaio",
+							row: 0
+						},
+						{
+							text: "Febbraio",
+							callback_data: "mese Febbraio",
+							row: 0
+						},
+						{
+							text: "Marzo",
+							callback_data: "mese Marzo",
+							row: 1
+						},
+						{
+							text: "Aprile",
+							callback_data: "mese Aprile",
+							row: 1
+						},
+						{
+							text: "Maggio",
+							callback_data: "mese Maggio",
+							row: 1
+						}
+					]
+				},
+				{
+					text: "Guarda i materiali dell'assemblea corrente",
+					callback_data: "materiali assemblea",
+					row: 1
+				},
+				{
+					text: "Abortisci un gruppo",
+					header: "Qui puoi abortire un gruppo avvisando tutti i partecipanti",
+					callback_data: "gestione gruppi",
+					row: 2,
+					children: [
+						{
+							text: "Primo turno",
+							callback_data: "gruppi turno 1",
+							row: 0
+						},
+						{
+							text: "Secondo turno",
+							callback_data: "gruppi turno 2",
+							row: 1
+						}
+					]
+				}
+			]
+		},
+		{
+			text: "Impostazioni",
+			header: "Puoi modificare le impostazioni, se ti va",
+			callback_data: "impostazioni",
+			row: 1,
+			children: [
+				{
+					text: "Notifiche",
+					header: "Attiva o disattiva le notifiche dei form dell'assemblea corrente.\nPremi un pulsante per cambiarne l'impostazione",
+					callback_data: "notifiche assemblea",
+					row: 0
+				}
+			]
+		}
+	]
+};
+
 export const mese_assemblea = {
     "inline_keyboard": [
       [
@@ -86,7 +175,7 @@ export async function getGruppi(inmenu=true) {
 		method: "POST",
 		body: JSON.stringify({
 			func: "getGruppi"
-		});
+		})
 	};
 	const resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
 

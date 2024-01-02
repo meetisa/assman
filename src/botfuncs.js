@@ -56,7 +56,39 @@ export async function multib(API_KEY, chatId, n) {
 				best.push(b);
 				var rep = false;
 			}
-		}while(rep);
+		} while(rep);
 		await this.sendMessage(API_KEY, chatId, `${b} [${n}]`);
+	}
+}
+
+export function inlineKeyboard(tree, callback_data) {
+	const undo = {
+		text: "↩",
+		callback_data: ""
+	};
+
+	if(callback_data == tree.callback_data || callback_data == 0) {
+		let kb = {inline_keyboard: []};
+		let row = [];
+		let nr = 0;
+		tree.children.forEach(child => {
+			if(child.row == nr+1) {
+				kb.inline_keyboard.push(row);
+				row = [];
+				nr++;
+			}
+			row.push({
+				text: child.text,
+				callback_data: child.callback_data
+			});
+		});
+		kb.inline_keyboard.push(row);
+
+		return [tree.header, kb];
+	}
+	else {
+		tree.children.forEach(child => {
+			inlineKeyboard(child, callback_data);
+		});
 	}
 }
