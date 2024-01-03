@@ -2,6 +2,7 @@ const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5Na
 
 export const tree = {
 	header: "Questo è il menu principlale",
+	callback_data:  "root",
 	children: [
 		{
 			text: "Assemblee",
@@ -49,6 +50,7 @@ export const tree = {
 				},
 				{
 					text: "Guarda i materiali dell'assemblea corrente",
+					header: "Ecco i materiali di cui hai bisogno",
 					callback_data: "materiali assemblea",
 					row: 1
 				},
@@ -83,47 +85,16 @@ export const tree = {
 					header: "Attiva o disattiva le notifiche dei form dell'assemblea corrente.\nPremi un pulsante per cambiarne l'impostazione",
 					callback_data: "notifiche assemblea",
 					row: 0
+				},
+				{
+					text: "Cartelli",
+					header: "Scegli se ricevere un messaggio quando i cartelli sono sbagliati",
+					callback_data: "cartelli",
+					row: 1
 				}
 			]
 		}
 	]
-};
-
-export const mese_assemblea = {
-    "inline_keyboard": [
-      [
-        {
-          "text": "Dicembre",
-          "callback_data": "mese Dicembre"
-        },
-        {
-          "text": "Gennaio",
-          "callback_data": "mese Gennaio"
-        },
-        {
-          "text": "Febbraio",
-          "callback_data": "mese Febbraio"
-        }
-      ],
-      [
-        {
-          "text": "Marzo",
-          "callback_data": "mese Marzo"
-        },
-        {
-          "text": "Aprile",
-          "callback_data": "mese Aprile"
-        },
-        {
-          "text": "Maggio",
-          "callback_data": "mese Maggio"
-        }
-      ],
-      [{
-        "text": "↩",
-        "callback_data": "undo nuova assemblea"
-      }]
-    ]
 };
 
 export async function getMaterialiAssemblea(inmenu=true) {
@@ -234,106 +205,3 @@ export function cambiaNotifiche(tipo, imp) {
   };
   return `Va bene, ${imp ? "" : "non "} riceverai notifiche quando arrivano risposte al form ${art[tipo]} ${tipo}`;
 }
-
-export const assembleekb = {
-    "inline_keyboard": [
-      [{
-        "text": "Crea una nuova assemblea",
-        "callback_data": "nuova assemblea"
-      }],
-      [{
-        "text": "Guarda i materiali dell'assemblea corrente",
-        "callback_data": "materiali assemblea"
-      }],
-      [{
-        "text": "Notifiche",
-        "callback_data": "notifiche assemblea"
-      }],
-      [{
-        "text": "↩",
-        "callback_data": "undo assemblee"
-      }]
-    ]
-  };
-
-export const torneikb = {
-    "inline_keyboard": [
-      [{
-        "text": "Niente",
-        "callback_data": "niente"
-      }],
-      [{
-        "text": "↩",
-        "callback_data": "undo tornei"
-      }]
-    ]
-  };
-
-export const buoni_pasto = {
-    "inline_keyboard": [
-      [{
-        "text": "Niente",
-        "callback_data": "niente"
-      }],
-      [{
-        "text": "↩",
-        "callback_data": "undo buoni pasto"
-      }]
-    ]
-  };
-
- export const menuTree = {
-    "inline_keyboard": [
-      [{
-        "text": "Assemblee",
-        "callback_data": "assemblee"
-      }],
-			[{
-				"text": "Impostazioni",
-				"callback_data": "impostazioni"
-			}]
-			/*
-      [{
-        "text": "Tornei",
-        "callback_data": "tornei"
-      }],
-			*/
-			/*
-      [{
-        "text": "Buoni pasto",
-        "callback_data": "buoni pasto"
-      }]
-      */
-    ]
-  };
-
-export const keyboards = {
-    "menu tree": [
-      "Questo è il menu principale",
-      menuTree
-    ],
-    "assemblee": [
-      "Sezione assemblee",
-      assembleekb
-    ],
-    "nuova assemblea": [
-      "Quando la vogliamo fare sta assemblea?",
-      mese_assemblea
-    ],
-    "materiali assemblea": [
-      "Ecco i materiali di cui hai bisogno"
-    ],
-    "notifiche assemblea": [
-      "Attiva o disattiva le notifiche dei form dell'assemblea corrente.\nPremi un pulsante per cambiarne l'impostazione"
-    ],
-		/*
-    "tornei": [
-      "Ancora in fase di sviluppo. Seguiranno aggiornamenti",
-      torneikb
-    ],
-    "buoni pasto": [
-      "Ancora in fase di sviluppo. Seguiranno aggiornamenti",
-      buoni_pasto
-    ]
-    */
-  };

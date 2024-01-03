@@ -61,13 +61,30 @@ export async function multib(API_KEY, chatId, n) {
 	}
 }
 
-export function inlineKeyboard(tree, callback_data) {
-	const undo = {
-		text: "↩",
-		callback_data: ""
-	};
+export function keyboardFromArray(opts, undoAction) {
+	let kb = {inline_keyboard:[]};
 
-	if(callback_data == tree.callback_data || callback_data == 0) {
+	opts.forEach(row => {
+		kb.inline_keyboard.push([]);
+		row.forEach(opt => {
+			kb.inline_keyboard[kb.inline_keyboard.length-1].push({
+				text: opt,
+				callback_data: opt
+			});
+		});
+	});
+
+	const undo = [{
+        text: "↩",
+        callback_data: `undo ${undoAction}`
+	}];
+	kb.inline_keyboard.push(undo);
+
+	return kb;
+}
+
+function keyboardFromTree(tree) {
+	if("children" in tree) {
 		let kb = {inline_keyboard: []};
 		let row = [];
 		let nr = 0;
@@ -83,12 +100,51 @@ export function inlineKeyboard(tree, callback_data) {
 			});
 		});
 		kb.inline_keyboard.push(row);
-
+		if(tree.callback_data != "root")
+			kb.inline_keyboard.push([{
+				text: "↩",
+				callback_data: `undo ${tree.callback_data}`
+			}]);
 		return [tree.header, kb];
 	}
-	else {
-		tree.children.forEach(child => {
-			inlineKeyboard(child, callback_data);
-		});
+	else
+		return tree;
+}
+
+export async function inlineKeyboard(tree, callback_data) {
+
+	//Approccio con algoritmo DFS
+
+	if(!tree)
+		return [];
+
+	const stack = [tree];
+	const undoAction  = callback_data.includes("undo") ? callback_data.replace("undo ", "") : null;
+
+	let found = false;
+
+	while(stack.length > 0) {
+		var current = stack.pop();
+		if(current.callback_data == callback_data || callback_data=="root") {
+			found = true;
+			break;
+		}
+
+		if("children" in current) {
+			current.children.forEach(child => stack.push(child));
+			if(
+				undoAction
+				&& current.children
+					.reduce(
+						(sum, child) => sum || (child.callback_data == undoAction),
+						false
+					)
+			) {
+				found = true;
+				break;
+			}
+		}
 	}
+
+	return found ? keyboardFromTree(current) : null;
 }

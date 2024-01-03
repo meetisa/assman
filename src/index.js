@@ -88,7 +88,7 @@ export default {
 			break;
 
 			case "/menu":
-				const kb = bot.inlineKeyboard(menu.tree, 0);
+				const kb = await bot.inlineKeyboard(menu.tree, "root");
 				await bot.sendKeyboard(API_KEY, chatId, ...kb);
 				/*
 				await bot.sendKeyboard(
@@ -138,122 +138,115 @@ export default {
 		//The id of the message to edit
 		const messageId = update.callback_query.message.message_id;
 
-		const kb = bot.inlineKeyboard(menu.tree, callback_data);
-		await bot.sendKeyboard(API_KEY, chatId, ...kb);
+		const kb = await bot.inlineKeyboard(menu.tree, callback_data);
 
-		/*
-		if(callback_data.includes("mese")) {
-			var mese = callback_data.replace("mese ", "");
-			callback_data = "mese";
-		}
+		if(Array.isArray(kb))
+			await bot.editMessageText(API_KEY, chatId, messageId, ...kb);
+		else {
 
-		switch(callback_data) {
-			// case "assemblee":
-			case "undo nuova assemblea":
-			case "undo materiali assemblea":
-			case "undo notifiche assemblea":
-				await bot.editMessageText(
-					API_KEY,
-					chatId,
-					messageId,
-					menu.keyboards["assemblee"][0],
-					menu.keyboards["assemblee"][1]
-				);
-			break;
+			if(callback_data.includes("mese"))
+				[callback_data, mese] = callback_data.replace("mese ", "");
 
-			case "undo assemblee":
-			case "undo tornei":
-			case "undo buoni pasto":
-				await bot.editMessageText(
-					API_KEY,
-					chatId,
-					messageId,
-					menu.keyboards["menu tree"][0],
-					menu.keyboards["menu tree"][1]
-				);
-			break;
+			let tipo=null, imp=null;
+			if(callback_data.includes("form"))
+				[callback_data, tipo, imp] = callback_data.split(" ");
 
-			case "mese":
-				await bot.sendMessage(API_KEY, chatId, `Generando l'assemblea di ${mese}. Un attimino...`);
-				var data = {
-					method: "POST",
-					body: JSON.stringify({
-						func: "createAssemblea",
-						API_KEY: API_KEY,
-						chat_id: chatId,
-						mese: mese
-					})
-				};
-				var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+			let turno=null, nt=null;
+			if(callback_data.includes("gruppi turno"))
+				[callback_data, turno, nt] = callback_data.split(" ");
 
-				if('error' in resp)
-					await bot.sendMessage(API_KEY, chatId, "Errore");
-				else if(!resp.abort) {
-					await bot.sendMessage(API_KEY, chatId, "Fatto! Ora ti mando tutti i link");
-					await bot.sendKeyboard(
+			switch(callback_data) {
+				case "mese":
+					await bot.sendMessage(API_KEY, chatId, `Generando l'assemblea di ${mese}. Un attimino...`);
+					var data = {
+						method: "POST",
+						body: JSON.stringify({
+							func: "createAssemblea",
+							API_KEY: API_KEY,
+							chat_id: chatId,
+							mese: mese
+						})
+					};
+					var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+
+					if('error' in resp)
+						await bot.sendMessage(API_KEY, chatId, "Errore");
+					else if(!resp.abort) {
+						await bot.sendMessage(API_KEY, chatId, "Fatto! Ora ti mando tutti i link");
+						await bot.sendKeyboard(
+							API_KEY,
+							chatId,
+							"Ecco i materiali di cui hai bisogno",
+							await menu.getMaterialiAssemblea(false)
+						);
+					}
+				break;
+
+				case "materiali assemblea":
+					await bot.sendMessage(API_KEY, chatId, "Accedendo ai dati. Un attimino...")
+					await bot.editMessageText(
 						API_KEY,
 						chatId,
-						menu.keyboards["materiali assemblea"][0],
-						await menu.getMaterialiAssemblea(false)
+						messageId,
+						kb.header,
+						await menu.getMaterialiAssemblea()
 					);
-				}
-			break;
+					await bot.sendMessage(API_KEY, chatId, "Fatto!");
+				break;
 
-			case "materiali assemblea":
-				await bot.sendMessage(API_KEY, chatId, "Accedendo ai dati. Un attimino...")
-				await bot.editMessageText(
-					API_KEY,
-					chatId,
-					messageId,
-					menu.keyboards[callback_data][0],
-					await menu.getMaterialiAssemblea()
-				);
-				await bot.sendMessage(API_KEY, chatId, "Fatto!");
-			break;
+				case "gruppi":
+					var data = {
+						method: "POST",
+						body: JSON.stringify({
+							func: "getGruppi",
+							chat_id: chatId,
+							turno: nt
+						})
+					};
+					var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+					let gruppi = resp.gruppi.map(gruppo => [gruppo.Gruppo]);
+					await bot.editMessageText(
+						API_KEY,
+						chatId,
+						messageId,
+						`Gruppi turno ${nt}`,
+						bot.keyboardFromArray(gruppi, `gruppi turno ${nt}`)
+					);
+				break;
 
-			case "notifiche assemblea":
-				await bot.editMessageText(
-					API_KEY,
-					chatId,
-					messageId,
-					menu.keyboards["notifiche assemblea"][0],
-					await menu.getNotifichekb(chatId)
-				);
-			break;
+				case "notifiche assemblea":
+					await bot.editMessageText(
+						API_KEY,
+						chatId,
+						messageId,
+						kb.header,
+						await menu.getNotifichekb(chatId)
+					);
+				break;
 
-			case callback_data.includes("form"):
-				let [form, tipo, imp] = callback_data.split(" ");
-				var data = {
-					method: "POST",
-					body: JSON.stringify({
-					func: "cambiaNotifiche",
-					chat_id: chatId,
-					tipo: tipo,
-					imp: imp
-					})
-				};
-				await bot.sendMessage(API_KEY, chatId, "Cambiando le impostazioni. Un attimino...");
-				var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
-				await bot.editMessageText(
-					API_KEY,
-					chatId,
-					messageId,
-					menu.keyboards["notifiche assemblea"][0],
-					await menu.getNotifichekb(chatId)
-				);
-				await bot.sendMessage(API_KEY, chatId, menu.cambiaNotifiche(resp.tipo, resp.imp));
-			break;
+				case "form":
+					var data = {
+						method: "POST",
+						body: JSON.stringify({
+							func: "cambiaNotifiche",
+							chat_id: chatId,
+							tipo: tipo,
+							imp: imp
+						})
+					};
+					await bot.sendMessage(API_KEY, chatId, "Cambiando le impostazioni. Un attimino...");
+					var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
 
-			default:
-				await bot.editMessageText(
-					API_KEY,
-					chatId,
-					messageId,
-					menu.keyboards[callback_data][0],
-					menu.keyboards[callback_data][1]
-				);
-			break;
+					await bot.editMessageText(
+						API_KEY,
+						chatId,
+						messageId,
+						(await bot.inlineKeyboard(menu.tree, "notifiche assemblea")).header,
+						await menu.getNotifichekb(chatId)
+					);
+					await bot.sendMessage(API_KEY, chatId, menu.cambiaNotifiche(resp.tipo, resp.imp));
+				break;
+			}
 		}
-		*/
 	}
 };
