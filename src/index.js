@@ -144,8 +144,9 @@ export default {
 			await bot.editMessageText(API_KEY, chatId, messageId, ...kb);
 		else {
 
+			let mese=null;
 			if(callback_data.includes("mese"))
-				[callback_data, mese] = callback_data.replace("mese ", "");
+				[callback_data, mese] = callback_data.split(" ");
 
 			let tipo=null, imp=null;
 			if(callback_data.includes("form"))
@@ -154,6 +155,10 @@ export default {
 			let turno=null, nt=null;
 			if(callback_data.includes("gruppi turno"))
 				[callback_data, turno, nt] = callback_data.split(" ");
+
+			let gruppo=null;
+			if(callback_data.includes("delete"))
+				[callback_data, gruppo] = callback_data.split(" ");
 
 			switch(callback_data) {
 				case "mese":
@@ -210,8 +215,20 @@ export default {
 						chatId,
 						messageId,
 						`Gruppi turno ${nt}`,
-						bot.keyboardFromArray(gruppi, `gruppi turno ${nt}`)
+						bot.keyboardFromArray(gruppi, `gruppi turno ${nt}`, 'delete')
 					);
+				break;
+
+				case "delete":
+					var data = {
+						method: "POST",
+						body: JSON.stringify({
+							func: "deleteGroup",
+							gruppo: gruppo
+						})
+					}
+					var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+					await bot.sendMessage(API_KEY, chatId, JSON.stringify(resp));
 				break;
 
 				case "notifiche assemblea":

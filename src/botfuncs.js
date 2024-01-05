@@ -61,7 +61,7 @@ export async function multib(API_KEY, chatId, n) {
 	}
 }
 
-export function keyboardFromArray(opts, undoAction) {
+export function keyboardFromArray(opts, undoAction, command="") {
 	let kb = {inline_keyboard:[]};
 
 	opts.forEach(row => {
@@ -69,7 +69,7 @@ export function keyboardFromArray(opts, undoAction) {
 		row.forEach(opt => {
 			kb.inline_keyboard[kb.inline_keyboard.length-1].push({
 				text: opt,
-				callback_data: opt
+				callback_data: `${command} ${opt}`
 			});
 		});
 	});
