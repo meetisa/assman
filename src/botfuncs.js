@@ -148,3 +148,19 @@ export async function inlineKeyboard(tree, callback_data) {
 
 	return found ? keyboardFromTree(current) : null;
 }
+
+export async function dataFromGS(func, params) {
+	const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
+
+	var data = {
+		method: "POST",
+		body: JSON.stringify({
+			Object.assign(
+				{func: func},
+				params
+			);
+		})
+	};
+
+	return await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+}

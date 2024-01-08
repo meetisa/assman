@@ -5,7 +5,6 @@ import * as modbest from './modbest.js';
 
 const DEV_MODE = true;
 const DEV_CHAT_ID = 512131924;
-
 const gsAssemblee = "https://script.google.com/macros/s/AKfycbzndYe2C8q0UzNtE5NaR2E3wlNUEURBL_Ob7Jc7tQJSg63pM3WfX2vLVt4hj_kd7cW4ug/exec";
 
 export default {
@@ -69,17 +68,12 @@ export default {
 			break;
 
 			case "/start":
-				var data = {
-					method: "POST",
-					body: JSON.stringify({
-						func: "userInit",
-						chat_id: chatId,
-						username: update.message.chat.username,
-						first_name: update.message.chat.first_name,
-						last_name: update.message.chat.last_name
-					})
-				};
-				await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+				await this.dataFromGS("userInit", {
+					chat_id: chatId,
+					username: update.message.chat.username,
+					first_name: update.message.chat.first_name,
+					last_name: update.message.chat.last_name
+				});
 				await bot.sendMessage(
 					API_KEY,
 					chatId,
@@ -90,25 +84,10 @@ export default {
 			case "/menu":
 				const kb = await bot.inlineKeyboard(menu.tree, "root");
 				await bot.sendKeyboard(API_KEY, chatId, ...kb);
-				/*
-				await bot.sendKeyboard(
-					API_KEY,
-					chatId,
-					menu.keyboards["menu tree"][0],
-					menu.keyboards["menu tree"][1]
-				);
-				*/
 			break;
 
 			case "/userscount":
-				var data = {
-					method: "POST",
-					body: JSON.stringify({
-						func: "getUsers",
-						chat_id: chatId
-					})
-				};
-				const resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+				const resp = await this.dataFromGS("getUsers", {chatId: chatId});
 				await bot.sendMessage(API_KEY, chatId, `${resp.userscount} persone hanno usato il bot`);
 			break;
 
@@ -157,22 +136,22 @@ export default {
 				[callback_data, turno, nt] = callback_data.split(" ");
 
 			let gruppo=null;
-			if(callback_data.includes("delete"))
-				[callback_data, gruppo] = callback_data.split(" ");
+			if(callback_data.includes("delete")) {
+				callback_data = callback_data.split(" ");
+				nt = callback_data[1];
+				gruppo = callback_data.slice(2).join(" ");
+				callback_data = callback_data[0];
+			}
 
 			switch(callback_data) {
 				case "mese":
 					await bot.sendMessage(API_KEY, chatId, `Generando l'assemblea di ${mese}. Un attimino...`);
-					var data = {
-						method: "POST",
-						body: JSON.stringify({
-							func: "createAssemblea",
-							API_KEY: API_KEY,
-							chat_id: chatId,
-							mese: mese
-						})
-					};
-					var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
+
+					var resp = await this.dataFromGS("createAssemblea", {
+						API_KEY: API_KEY,
+						chat_id: chatId,
+						mese: mese
+					});
 
 					if('error' in resp)
 						await bot.sendMessage(API_KEY, chatId, "Errore");
@@ -200,35 +179,30 @@ export default {
 				break;
 
 				case "gruppi":
-					var data = {
-						method: "POST",
-						body: JSON.stringify({
-							func: "getGruppi",
-							chat_id: chatId,
-							turno: nt
-						})
-					};
-					var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
-					let gruppi = resp.gruppi.map(gruppo => [gruppo.Gruppo]);
+					var resp = await this.dataFromGS("getGruppi", {chat_id:chatId, turno:nt});
+					var gruppi = resp.gruppi.map(gruppo => [gruppo.Gruppo]);
+
 					await bot.editMessageText(
 						API_KEY,
 						chatId,
 						messageId,
 						`Gruppi turno ${nt}`,
-						bot.keyboardFromArray(gruppi, `gruppi turno ${nt}`, 'delete')
+						bot.keyboardFromArray(gruppi, `gruppi turno ${nt}`, 'delete ' + nt)
 					);
 				break;
 
 				case "delete":
-					var data = {
-						method: "POST",
-						body: JSON.stringify({
-							func: "deleteGroup",
-							gruppo: gruppo
-						})
-					}
-					var resp = await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
-					await bot.sendMessage(API_KEY, chatId, JSON.stringify(resp));
+					await this.dataFromGS("deleteGroup", {gruppo:gruppo, nt:nt});
+					await bot.sendMessage(API_KEY, chatId, `Hai eliminato il gruppo "${gruppo}" al turno ${nt}`);
+					var resp = await this.dataFromGS("getGruppi", {chat_id:chatId, tunrno:nt});
+					var gruppi = resp.gruppi.map(gruppo => [gruppo.Gruppo]);
+					await bot.editMessageText(
+						API_KEY,
+						chatId,
+						messageId,
+						`gruppi tunro ${resp.nt}`,
+						bot.keyboardFromArray(gruppi, `gruppi turno ${nt}`, 'delete ' + nt)
+					);
 				break;
 
 				case "notifiche assemblea":
@@ -265,5 +239,14 @@ export default {
 				break;
 			}
 		}
+	},
+
+	async dataFromGS(func, params) {
+		var data = {
+			method: "POST",
+			body: JSON.stringify(Object.assign({func: func}, params))
+		};
+
+		return await fetch(`${gsAssemblee}`, data).then(resp => resp.json());
 	}
 };

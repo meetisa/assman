@@ -100,9 +100,7 @@ export const tree = {
 export async function getMaterialiAssemblea(inmenu=true) {
 	let data = {
 		method: "POST",
-		body: JSON.stringify({
-			func: "getUrls"
-		})
+		body: JSON.stringify({func: "getUrls"})
 	};
 
 	const resp = await fetch(`${gsAssemblee}`, data).then(r => r.json());
